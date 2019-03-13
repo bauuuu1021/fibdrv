@@ -6,6 +6,7 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/mutex.h>
+#include <linux/uaccess.h>
 
 MODULE_LICENSE("Dual MIT/GPL");
 MODULE_AUTHOR("National Cheng Kung University, Taiwan");
@@ -60,7 +61,17 @@ static ssize_t fib_read(struct file *file,
                         size_t size,
                         loff_t *offset)
 {
-    return (ssize_t) fib_sequence(*offset);
+    ktime_t start = ktime_get();
+    ssize_t ret = fib_sequence(*offset);
+    ktime_t end = ktime_get();
+    ktime_t runtime = ktime_sub(end, start);
+
+    char tmp[128];
+    memset(tmp, 0, 128);
+    sprintf(tmp, "%lld\n", runtime);
+    copy_to_user(buf, tmp, 128);
+
+    return ret;
 }
 
 /* write operation is skipped */
@@ -113,7 +124,7 @@ static int __init init_fib_dev(void)
     // Let's register the device
     // This will dynamically allocate the major number
     rc = alloc_chrdev_region(&fib_dev, 0, 1, DEV_FIBONACCI_NAME);
-
+    printk(KERN_INFO "insertttttttt");
     if (rc < 0) {
         printk(KERN_ALERT
                "Failed to register the fibonacci char device. rc = %i",

@@ -5,7 +5,6 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
-#include "common.h"
 
 #define FIB_DEV "/dev/fibonacci"
 
@@ -28,11 +27,13 @@ int main()
     int fd;
     long long sz;
 
-    char buf[1];
+    char buf[128];
     char write_buf[] = "testing writing";
     int offset = 100;  // TODO: test something bigger than the limit
     int i = 0;
     FILE *fp = fopen("timeRecord", "w");
+    if (!fp)
+        return 1;
 
     fd = open(FIB_DEV, O_RDWR);
 
@@ -51,9 +52,9 @@ int main()
 
         lseek(fd, i, SEEK_SET);
         clock_gettime(CLOCK_REALTIME, &start);
-        sz = read(fd, buf, 1);
+        sz = read(fd, buf, 128);
         clock_gettime(CLOCK_REALTIME, &end);
-        fprintf(fp, "%d %d\n", i, diff_in_ns(start, end));
+        fprintf(fp, "%d %d %lld\n", i, diff_in_ns(start, end), atoll(buf));
         printf("Reading from " FIB_DEV
                " at offset %d, returned the sequence "
                "%lld.\n",
@@ -62,7 +63,7 @@ int main()
 
     for (i = offset; i >= 0; i--) {
         lseek(fd, i, SEEK_SET);
-        sz = read(fd, buf, 1);
+        sz = read(fd, buf, 128);
         printf("Reading from " FIB_DEV
                " at offset %d, returned the sequence "
                "%lld.\n",
