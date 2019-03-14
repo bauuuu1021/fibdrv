@@ -54,7 +54,8 @@ int main()
         clock_gettime(CLOCK_REALTIME, &start);
         sz = read(fd, buf, 128);
         clock_gettime(CLOCK_REALTIME, &end);
-        fprintf(fp, "%d %d %lld\n", i, diff_in_ns(start, end), atoll(buf));
+        fprintf(fp, "%d %d %lld %.2f\n", i, diff_in_ns(start, end), atoll(buf),
+                (double) atoll(buf) / (double) diff_in_ns(start, end) * 100);
         printf("Reading from " FIB_DEV
                " at offset %d, returned the sequence "
                "%lld.\n",

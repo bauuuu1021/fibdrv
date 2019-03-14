@@ -18,7 +18,7 @@ $(GIT_HOOKS):
 
 clean:
 	$(MAKE) -C $(KDIR) M=$(PWD) clean
-	$(RM) client out timeRecord timeCmp.png
+	$(RM) client out timeRecord timeCmp.png rate.png
 load:
 	sudo insmod $(TARGET_MODULE).ko
 unload:
@@ -39,3 +39,4 @@ check: all
 	$(MAKE) unload
 	@diff -u out expected.txt && $(call pass)
 	gnuplot fibplot.gp
+	gnuplot percentKernel.gp
